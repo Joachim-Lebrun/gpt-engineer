@@ -6,6 +6,7 @@ import subprocess
 
 from itertools import islice
 from pathlib import Path
+from typing import Iterable
 
 from typer import run
 
@@ -15,7 +16,7 @@ def main(
 ):
     path = Path("benchmark")
 
-    folders = path.iterdir()
+    folders: Iterable[Path] = path.iterdir()
 
     if n_benchmarks:
         folders = islice(folders, n_benchmarks)
@@ -23,7 +24,7 @@ def main(
     benchmarks = []
     for bench_folder in folders:
         if os.path.isdir(bench_folder):
-            print("Running benchmark for {}".format(bench_folder))
+            print(f"Running benchmark for {bench_folder}")
 
             log_path = bench_folder / "log.txt"
             log_file = open(log_path, "w")
@@ -34,7 +35,7 @@ def main(
                     "-m",
                     "gpt_engineer.main",
                     bench_folder,
-                    "--steps-config",
+                    "--steps",
                     "benchmark",
                 ],
                 stdout=log_file,
@@ -44,7 +45,7 @@ def main(
             benchmarks.append((bench_folder, process, log_file))
 
             print("You can stream the log file by running:")
-            print("tail -f {}".format(log_path))
+            print(f"tail -f {log_path}")
             print()
 
     for bench_folder, process, file in benchmarks:
@@ -65,7 +66,7 @@ def main(
                     "-m",
                     "gpt_engineer.main",
                     bench_folder,
-                    "--steps-config",
+                    "--steps",
                     "execute_only",
                 ],
             )
